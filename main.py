@@ -9,7 +9,9 @@ SCREEN_TITLE = "Projekt"
 CHARGES_FILENAME = "stationary.txt"
 OUTPUT_FILENAME = "out.txt"
 SIMULATION_OUTPUT_FILENAME = "simulation_out.txt"
+DELTA_T = 0.001
 K = 9 * 10e9
+
 
 @dataclass
 class StationaryCharge:
@@ -126,8 +128,8 @@ class Simulation:
         self.field.save_field_to_file(OUTPUT_FILENAME)
 
     def simulate(self):
+        self.movable.position = self.movable.position + self.movable.velocity * self.delta_t + 0.5 * self.movable.acceleration * math.pow(self.delta_t, 2)
         if not self.out_of_boundaries() and not self.collision_with_stationary():
-            self.movable.position = self.movable.position + self.movable.velocity * self.delta_t + 0.5 * self.movable.acceleration * math.pow(self.delta_t, 2)
             self.movable.velocity += self.movable.acceleration * self.delta_t
             self.movable.acceleration = self.movable.calculate_acc_at(self.movable.position, self.field)
             print(f"T: {self.time_elapsed} POS: {self.movable.position} VEL: {self.movable.velocity} ACC: {self.movable.acceleration}")
@@ -171,7 +173,7 @@ class Simulation:
 class Arcade(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
-        self.s = Simulation(0.001)
+        self.s = Simulation(DELTA_T)
         self.scale_x = width / self.s.field.w
         self.scale_y = height / self.s.field.h
         arcade.set_background_color(arcade.color.BLACK)
